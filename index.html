@@ -3,10 +3,11 @@
 <head>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/luxon/build/global/luxon.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/animejs/lib/anime.min.js"></script>
 <style>@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap');</style>
 </head>
 <body class="overflow-hidden h-screen w-screen bg-white dark:bg-black text-black dark:text-white" style="font-family: 'Comfortaa'; font-weight: 700; font-size: min(3vh, 3vw);">
-    <div class="bg-white/10 dark:bg-black/10 grid grid-cols-7 auto-rows-fr place-items-center place-content-center aspect-square cursor-default select-none h-full w-full">
+    <div id="calendar" class="bg-white/10 dark:bg-black/10 grid grid-cols-7 auto-rows-fr place-items-center place-content-center aspect-square cursor-default select-none h-full w-full">
         <div id="wd1" class="bg-black/5 dark:bg-white/10 h-full w-full flex place-content-center place-items-center"></div>
         <div id="wd2" class="bg-black/5 dark:bg-white/10 h-full w-full flex place-content-center place-items-center"></div>
         <div id="wd3" class="bg-black/5 dark:bg-white/10 h-full w-full flex place-content-center place-items-center"></div>
@@ -40,6 +41,15 @@ document.getElementById(`c${luxon.DateTime.now().day + luxon.DateTime.now().set(
 
 for (let i = 1; i <= 7; i++) { document.getElementById(`wd${i}`).innerHTML = luxon.DateTime.now().setLocale('en').set({weekday: i}).weekdayShort.toUpperCase() }
 for (let i = luxon.DateTime.now().set({day: 1}).weekday; i < luxon.DateTime.now().daysInMonth + luxon.DateTime.now().set({day: 1}).weekday; i++) { document.getElementById(`c${i}`).innerHTML = i - luxon.DateTime.now().set({day: 0}).weekday; }
+
+anime({
+targets: document.getElementById('calendar').children,
+delay: anime.stagger(100, {grid: [7, 7], from: 'last'}),
+direction: 'reverse',
+easing: 'easeInOutSine',
+duration: 300,
+opacity: 0,
+});
 
 </script>
 </body>
