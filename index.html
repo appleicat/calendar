@@ -5,18 +5,18 @@
 <script src="https://cdn.jsdelivr.net/npm/animejs/lib/anime.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;1,100&display=swap');
+::-webkit-scrollbar { display: none }
 .height13 { height: min(13vh, 13vw) }
 </style>
 </head>
 <body>
 <script>
-
 luxon.Settings.defaultLocale = 'en'
-
-document.body.classList.add('overflow-hidden', 'h-screen', 'w-screen', 'bg-white', 'dark:bg-black', 'text-black', 'dark:text-white')
-document.body.style = `font-family: 'Comfortaa'; font-weight: 700; font-size: min(3vh, 3vw);`
+document.body.classList.add('overflow-hidden', 'h-screen', 'w-screen', 'bg-white', 'dark:bg-black', 'text-black', 'dark:text-white', 'flex')
+document.body.style = `font-family: 'Comfortaa'; font-weight: 100; font-size: min(3vh, 3vw);`
 document.body.appendChild(document.createElement('div')).setAttribute('id', 'calendar')
-document.getElementById('calendar').classList.add('bg-white/10', 'dark:bg-black/10', 'grid', 'grid-cols-7', 'auto-rows-fr', 'place-items-center', 'place-content-center', 'aspect-square', 'cursor-default', 'select-none', 'h-full', 'w-full')
+document.getElementById('calendar').classList.add('bg-white/10', 'dark:bg-black/10', 'grid', 'grid-cols-7', 'auto-rows-fr', 'place-items-center', 'place-content-center', 'aspect-square', 'cursor-default', 'select-none', 'h-full', 'w-full', 'flex-1')
 for (let i = 1; i <= 7; i++) { document.getElementById('calendar').appendChild(document.createElement('div')).setAttribute('id', `wd${i}`) }
 for (let i = 1; i <= 7; i++) { document.getElementById(`wd${i}`).classList.add('bg-black/5', 'dark:bg-white/5', 'h-full', 'w-full', 'flex', 'place-content-center', 'place-items-center') }
 for (let i = 6; i <= 7; i++) { document.getElementById(`wd${i}`).classList.add('text-black/50', 'dark:text-white/50') }
@@ -53,15 +53,33 @@ document.getElementById('calendar').appendChild(document.createElement('div')).s
 document.getElementById('time').classList.add('bg-[#ff0000]/30', 'dark:bg-[#ff0000]/50', 'h-full', 'w-full', 'flex', 'place-content-center', 'place-items-center')
 document.getElementById('time').appendChild(document.createElement('span'))
 
-let datetime = luxon.DateTime.now();
+document.body.appendChild(document.createElement('div')).setAttribute('id', 'list')
+document.getElementById('list').classList.add('h-full', 'w-full', 'flex', 'flex-col', 'items-center', 'p-4')
+document.getElementById('list').style = `font-family: 'Lato'; font-weight: 100;`
+document.getElementById('list').appendChild(document.createElement('div')).setAttribute('id', 'listDate')
+document.getElementById('listDate').classList.add('p-4')
+document.getElementById('list').appendChild(document.createElement('textarea')).setAttribute('id', 'listTextarea')
+document.getElementById('listTextarea').classList.add('h-full', 'w-full', 'bg-transparent', 'text-xl')
+document.getElementById('listTextarea').style = `resize: none; overflow-x: hidden; overflow-y: auto; outline: transparent; font-family: 'Comfortaa';`
+if (!localStorage.listTextarea) { localStorage.listTextarea = JSON.stringify({}) }
+
+document.getElementById('listTextarea').addEventListener('input', () => {
+    let lta = JSON.parse(localStorage.listTextarea)
+    lta[localStorage.selectedTS] = document.getElementById('listTextarea').value
+    if (lta[localStorage.selectedTS] == '') { delete lta[localStorage.selectedTS] }
+    localStorage.listTextarea = JSON.stringify(lta)
+    render()
+})
 
 setInterval(() => { document.getElementById('time').children[0].innerHTML = luxon.DateTime.now().toLocaleString(luxon.DateTime.TIME_24_SIMPLE); }, 1000);
 
-setInterval(() => { if (datetime.day != luxon.DateTime.now().day) {datetime = datetime.set({day: luxon.DateTime.now().day}); render()} }, 1000);
+let datetime = presently = luxon.DateTime.now();
+
+setInterval(() => { if (presently.day != luxon.DateTime.now().day) {presently = presently.set({day: luxon.DateTime.now().day}); render()} }, 1000);
 
 document.getElementById('now').addEventListener('click', () => {
               anime({ targets: [ document.getElementById('month').children[0], document.getElementById('year').children[0], document.querySelectorAll('[data-cell]') ], easing: 'easeInOutSine', duration: 100, opacity: 0 }).finished
-.then(() => { datetime = luxon.DateTime.now(); render(); })
+.then(() => { datetime = luxon.DateTime.now(); localStorage.selectedTS = luxon.DateTime.now().set({millisecond: 0, second: 0, minute: 0, hour: 0}).ts; render(); })
 .then(() => { anime({ targets: [ document.getElementById('month').children[0], document.getElementById('year').children[0], document.querySelectorAll('[data-cell]') ], easing: 'easeInOutSine', duration: 100, opacity: 1 }) })
 })
 document.getElementById('previous').addEventListener('click', () => {
@@ -74,26 +92,46 @@ document.getElementById('next').addEventListener('click', () => {
 .then(() => { datetime = datetime.plus({month: 1}); render(); })
 .then(() => { anime({ targets: [ document.getElementById('month').children[0], document.getElementById('year').children[0], document.querySelectorAll('[data-cell]') ], easing: 'easeInOutSine', duration: 100, opacity: 1 }) })
 })
+for (let i = 1; i <= 37; i++) {
+    document.getElementById(`c${i}`).addEventListener('click', () => {
+        if (document.getElementById(`c${i}`).dataset.ts) {
+            localStorage.selectedTS = document.getElementById(`c${i}`).dataset.ts
+            render();
+        }
+    })
+}
+
+if (!localStorage.selectedTS) { localStorage.selectedTS = luxon.DateTime.now().set({millisecond: 0, second: 0, minute: 0, hour: 0}).ts }
 
 function render() {
     
-    document.getElementById('year').children[0].innerHTML = datetime.year;
-    document.getElementById('month').children[0].innerHTML = datetime.monthShort.toUpperCase();
-    
     for (let i = 1; i <= 37; i++) {
-        document.getElementById(`c${i}`).classList.remove('text-white', 'bg-[#ff0000]/70');
+        document.getElementById(`c${i}`).classList.remove('text-white', 'bg-[#ff0000]/70', 'bg-[#7f7f7f]/10');
         document.getElementById(`c${i}`).children['top'].innerHTML = '';
         document.getElementById(`c${i}`).children['date'].innerHTML = '';
         document.getElementById(`c${i}`).children['bottom'].innerHTML = '';
+        document.getElementById(`c${i}`).dataset.ts = '';
+    }
+
+    document.getElementById('year').children[0].innerHTML = datetime.year;
+    document.getElementById('month').children[0].innerHTML = datetime.monthShort.toUpperCase();
+    if (datetime.month == luxon.DateTime.now().month && datetime.year == luxon.DateTime.now().year) { document.getElementById(`c${luxon.DateTime.now().day + luxon.DateTime.now().set({day: 1}).weekday - 1}`).classList.add('text-white', 'bg-[#ff0000]/70') }
+    
+    for (let i = datetime.set({day: 1}).weekday; i < datetime.daysInMonth + datetime.set({day: 1}).weekday; i++) {
+        document.getElementById(`c${i}`).children['date'].innerHTML = i - datetime.set({day: 1}).weekday + 1;
+        document.getElementById(`c${i}`).dataset.ts = `${datetime.set({millisecond: 0, second: 0, minute: 0, hour: 0, day: i - datetime.set({day: 1}).weekday + 1}).ts}`;
+        if (document.getElementById(`c${i}`).dataset.ts == localStorage.selectedTS) { if (!document.getElementById(`c${i}`).classList.contains('bg-[#ff0000]/70')) { document.getElementById(`c${i}`).classList.add('bg-[#7f7f7f]/10') } }
+        if (JSON.parse(localStorage.listTextarea)[document.getElementById(`c${i}`).dataset.ts] != undefined){ document.getElementById(`c${i}`).children['bottom'].innerHTML = '•'; }
     }
     
-    for (let i = datetime.set({day: 1}).weekday; i < datetime.daysInMonth + datetime.set({day: 1}).weekday; i++) { document.getElementById(`c${i}`).children['date'].innerHTML = i - datetime.set({day: 1}).weekday + 1 }
-    
-    if (datetime.month == luxon.DateTime.now().month && datetime.year == luxon.DateTime.now().year) { document.getElementById(`c${luxon.DateTime.now().day + luxon.DateTime.now().set({day: 1}).weekday - 1}`).classList.add('text-white', 'bg-[#ff0000]/70') }
+    document.getElementById('listDate').innerHTML = `${luxon.DateTime.fromMillis(parseInt(localStorage.selectedTS)).toLocaleString(luxon.DateTime.DATE_HUGE)}`
+    document.getElementById('listTextarea').value = ``
+    if (JSON.parse(localStorage.listTextarea)[JSON.parse(localStorage.selectedTS)] != undefined) { document.getElementById('listTextarea').value = `${JSON.parse(localStorage.listTextarea)[JSON.parse(localStorage.selectedTS)]}` }
 
 }render();
 
 anime({ targets: document.getElementById('calendar').children, delay: anime.stagger(110, {grid: [7, 7], from: 'first'}), direction: 'normal', easing: 'easeInOutSine', duration: 300, opacity: [0, 1] });
+anime({ targets: document.getElementById('list'), direction: 'normal', easing: 'easeInOutSine', duration: 1000, opacity: [0, 1] });
 
 </script>
 </body>
