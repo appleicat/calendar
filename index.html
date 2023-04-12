@@ -3,6 +3,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/luxon/build/global/luxon.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/animejs/lib/anime.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;1,100&display=swap');
@@ -63,12 +64,13 @@ document.getElementById('listTextarea').classList.add('h-full', 'w-full', 'bg-tr
 document.getElementById('listTextarea').style = `resize: none; overflow-x: hidden; overflow-y: auto; outline: transparent; font-family: 'Comfortaa';`
 if (!localStorage.listTextarea) { localStorage.listTextarea = JSON.stringify({}) }
 
+document.getElementById('list').appendChild(document.createElement('div')).setAttribute('id', 'editor')
+
 document.getElementById('listTextarea').addEventListener('input', () => {
     let lta = JSON.parse(localStorage.listTextarea)
     lta[localStorage.selectedTS] = document.getElementById('listTextarea').value
     if (lta[localStorage.selectedTS] == '') { delete lta[localStorage.selectedTS] }
     localStorage.listTextarea = JSON.stringify(lta)
-    render()
 })
 
 setInterval(() => { document.getElementById('time').children[0].innerHTML = luxon.DateTime.now().toLocaleString(luxon.DateTime.TIME_24_SIMPLE); }, 1000);
@@ -132,6 +134,10 @@ function render() {
 
 anime({ targets: document.getElementById('calendar').children, delay: anime.stagger(110, {grid: [7, 7], from: 'first'}), direction: 'normal', easing: 'easeInOutSine', duration: 300, opacity: [0, 1] });
 anime({ targets: document.getElementById('list'), direction: 'normal', easing: 'easeInOutSine', duration: 1000, opacity: [0, 1] });
+
+const editor = new EditorJS({
+    holder: 'editor'
+})
 
 </script>
 </body>
