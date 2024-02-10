@@ -4,12 +4,12 @@ import { Clock } from './_time';
 export default function Page() {
   return (
     <motion.section
-      className="h-screen w-screen flex flex-col overflow-hidden cursor-none"
+      className="h-svh w-svw flex flex-col cursor-none"
       animate={{ opacity: [0, 1] }}
     >
-      <section className="h-full w-full flex">
-        <div className="h-full w-full flex flex-col justify-center items-center">
-          <Clock size="50%" ease="easeInOut" arrowSecondsEase="linear" />
+      <section className="h-full w-full flex justify-center items-center flex-wrap">
+        <div className="h-svh flex flex-auto flex-col justify-center items-center">
+          <Clock size="50svmin" ease="easeInOut" arrowSecondsEase="linear" />
         </div>
         <Calendar />
       </section>

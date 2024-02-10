@@ -49,24 +49,26 @@ export const Calendar = () => {
     }
   }
   return (
-    <section className="grid grid-cols-7 auto-rows-fr place-items-center place-content-center h-full aspect-square text-xl">
-      {[1, 2, 3, 4, 5, 6, 7].map((i) => (
-        <WeekDayCell hover key={i} weekday={i} />
-      ))}
-      {cells.map((cell, key) => (
-        <Cell
-          key={key}
-          {...(cell.hover === true && { hover: true })}
-          {...(cell.now === true && { now: true })}
-        >
-          {cell.date}
-        </Cell>
-      ))}
-      <Cell></Cell>
-      <Cell hover>{dayjs().format('HH:mm')}</Cell>
-      <Cell hover>{dayjs().format('D')}</Cell>
-      <Cell hover>{dayjs().format('MMM').toUpperCase()}</Cell>
-      <Cell hover>{dayjs().format('YYYY')}</Cell>
-    </section>
+    <div className="flex-auto h-svh flex justify-center items-center">
+      <section className="grid grid-cols-7 auto-rows-fr place-items-center place-content-center max-h-svh w-full aspect-square text-xl">
+        {[1, 2, 3, 4, 5, 6, 7].map((i) => (
+          <WeekDayCell hover key={i} weekday={i} />
+        ))}
+        {cells.map((cell, key) => (
+          <Cell
+            key={key}
+            {...(cell.hover === true && { hover: true })}
+            {...(cell.now === true && { now: true })}
+          >
+            {cell.date}
+          </Cell>
+        ))}
+        <Cell></Cell>
+        <Cell hover>{dayjs().format('HH:mm')}</Cell>
+        <Cell hover>{dayjs().format('D')}</Cell>
+        <Cell hover>{dayjs().format('MMM').toUpperCase()}</Cell>
+        <Cell hover>{dayjs().format('YYYY')}</Cell>
+      </section>
+    </div>
   );
 };
